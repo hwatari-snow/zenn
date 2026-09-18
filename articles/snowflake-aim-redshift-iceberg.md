@@ -4,6 +4,7 @@ emoji: "❄️"
 type: "tech"
 topics: ["snowflake", "redshift", "iceberg", "aws"]
 published: true
+publication_name: "snowflakejp"
 ---
 
 :::message
@@ -83,7 +84,7 @@ https://www.snowflake.com/en/blog/engineering/snowflake-aim-migration-agent/
 :::
 
 なお、Snowflake StrageのIceebrgテーブルに関しては、こちらのブログを参考にしてください。
-https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing?redirected=1
+https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing
 
 ## Snowflake AIMプラグインをCoCoに導入する
 
