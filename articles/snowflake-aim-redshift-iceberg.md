@@ -1,5 +1,5 @@
 ---
-title: "Snowflake AIMを使ってRedshiftからSnowflake-managed Icebergテーブルへの移行を試してみた"
+title: "Snowflake AIMを使ってRedshiftからSnowflake storage for Iceberg™ tablesへの移行を試してみた"
 emoji: "❄️"
 type: "tech"
 topics: ["snowflake", "redshift", "iceberg", "aws", "datamigration"]
@@ -17,7 +17,7 @@ publication_name: "snowflakejp"
 
 データウェアハウスの移行では、データをコピーするだけでは作業が終わりません。SQLの方言差分を直し、ビューやストアドプロシージャの依存関係を確認します。移行先で同じ結果が得られるかを検証する作業も必要です。
 
-今回は、こうした移行作業を支援する **Snowflake AIM** を紹介します。後半では、CoCo DesktopからAmazon Redshiftの移行を試した画面を使い、操作の流れを追っていきます。移行先には、Snowflake storageを使用するIcebergテーブルを指定しました。
+今回は、こうした移行作業を支援する **Snowflake AIM** を紹介します。後半では、CoCo DesktopからAmazon Redshiftの移行を試した画面を使い、操作の流れを追っていきます。移行先には、**Snowflake storage for Iceberg™ tables**を指定しました。
 
 この記事は、移行を担当するエンジニア向けです。AIMの概要に続いて、接続設定、コード変換、データ移行の設定、移行後の確認を紹介します。
 
@@ -80,7 +80,7 @@ https://www.snowflake.com/en/blog/engineering/snowflake-aim-migration-agent/
 | 移行元 | Amazon Redshiftの`dev`データベース |
 | 移行先DB | Snowflakeの`AIM_MIGRATION_DB` |
 | テーブル形式 | Iceberg |
-| 保存先の要件 | Snowflake storage |
+| 保存先の要件 | Snowflake storage for Iceberg™ tables |
 | Orchestrator | Local |
 | Worker | ローカルワーカー |
 | 抽出方式 | Direct read（ODBC） |
@@ -108,7 +108,7 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/troubleshooting
 RedshiftからSnowflakeへ移行をお願いいたします。なお、Snowflake storageを使用したIcebergテーブルにしてください。
 ```
 
-![CoCo DesktopでRedshiftからの移行と、Snowflake storageを使うIcebergテーブルを指定する。](/images/snowflake-aim-redshift-iceberg/03-start.jpg)
+![CoCo DesktopでRedshiftからの移行と、Snowflake storage for Iceberg™ tablesを指定する。](/images/snowflake-aim-redshift-iceberg/03-start.jpg)
 
 「Redshiftから移行したい」だけでなく、テーブル形式と保存先も最初に伝えています。通常のSnowflakeテーブルにするのか、Icebergにするのかで、後続のDDLやデータ移行設定が変わるためです。
 
@@ -201,7 +201,7 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-v
 
 今回はODBC抽出を選んでいるため、S3は経由していません。もう一方の`UNLOAD to S3`は、RedshiftがS3へファイルを書き出し、Snowflakeが外部ステージ経由でロードする抽出方式です。S3バケットとIAMロールを用意する必要がありますが、公開ドキュメントでは前提を整えられる場合はUNLOADが推奨されています。ODBC抽出は少量データなどに向く選択肢です。
 
-ここで押さえておきたいのは、**抽出経路（ODBC / UNLOAD）とIcebergの保存先（Snowflake storage / 外部ボリューム）は別の設定**だという点です。UNLOAD用のS3バケットと、Icebergのデータファイルを置く場所は同じものではありません。
+ここで押さえておきたいのは、**抽出経路（ODBC / UNLOAD）とIcebergの保存先（Snowflake storage for Iceberg™ tables / 外部ボリューム）は別の設定**だという点です。UNLOAD用のS3バケットと、Icebergのデータファイルを置く場所は同じものではありません。
 
 保存先に外部ボリュームを使いたい場合も、CoCoはAWS CLIを実行できるので、IAMロールとS3バケットの作成からExternal Volumeの定義まで、同じセッションの中で進められます。詳細は下記をご参考にしてください。
 
@@ -249,7 +249,7 @@ CoCoの完了メッセージだけでなく、移行先の画面でもテーブ�
 
 ### 移行先にIcebergを選べる
 
-抽出方式とテーブル形式が独立した選択肢になっているので、「RedshiftからODBCで抽出し、Snowflake storageのIcebergテーブルへ入れる」という組み合わせを選択だけで実現できました。テーブル作成からデータ投入までAIMがまとめて面倒を見てくれるため、オープンなレイクハウス構成を前提とした移行も検討しやすくなります。
+抽出方式とテーブル形式が独立した選択肢になっているので、「RedshiftからODBCで抽出し、Snowflake storage for Iceberg™ tablesへ入れる」という組み合わせを選択だけで実現できました。テーブル作成からデータ投入までAIMがまとめて面倒を見てくれるため、オープンなレイクハウス構成を前提とした移行も検討しやすくなります。
 
 ### 検証が段階的に用意されている
 
@@ -287,11 +287,11 @@ Snowflake AIMは、コード変換だけでなく、依存関係や進捗を管�
 - [Redshiftからのデータ移行](https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/migrate-redshift)
 - [Data Migration & Validationの概要](https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/overview)
 - [Redshiftからのデータ検証](https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/validate-redshift)
-- [Snowflake storage for Apache Iceberg tables](https://docs.snowflake.com/en/user-guide/tables-iceberg-internal-storage)
+- [Snowflake storage for Iceberg™ tables](https://docs.snowflake.com/en/user-guide/tables-iceberg-internal-storage)
 - [Snowflake World Tour Tokyo（セッションのオンデマンド配信）](https://www.snowflake.com/ja/world-tour/tokyo/)
 
 ## 関連記事
 
-Snowflake storageを使うIcebergテーブル自体については、こちらの庄司さんの記事で詳しく扱っています！併せて最高の機能ですので読んでいただけると幸いです。
+Snowflake storage for Iceberg™ tables自体については、こちらの庄司さんの記事で詳しく扱っています！併せて最高の機能ですので読んでいただけると幸いです。
 
 https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing
