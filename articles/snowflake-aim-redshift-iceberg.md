@@ -1,6 +1,6 @@
 ---
 title: "Snowflake AIMを使ってRedshiftからIcebergテーブルへの移行を試してみた"
-emoji: "\U00002744\U0000FE0F"
+emoji: "❄️"
 type: "tech"
 topics: ["snowflake", "redshift", "iceberg", "aws"]
 published: true
