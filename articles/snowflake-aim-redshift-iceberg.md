@@ -6,7 +6,9 @@ topics: ["snowflake", "redshift", "iceberg", "aws"]
 published: true
 ---
 
-> 著者はSnowflakeに所属しておりますが、本記事は個人の見解であり、所属する組織の公式見解ではありません。
+:::message
+著者はSnowflakeに所属しておりますが、本記事は個人の見解であり、所属する組織の公式見解ではありません。
+:::
 
 ## はじめに
 
