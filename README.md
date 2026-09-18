@@ -21,7 +21,7 @@ npm run preview
 ## 原稿
 
 - `articles/snowflake-aim-redshift-iceberg.md` はAIM紹介記事の下書きです。
-- `articles/cortex-code-cli-install-guide.md` は既存の原稿です。今回のセットアップでは変更していません。
+- `articles/cortex-code-cli-install-guide.md` は既存の原稿です。Zenn用Front Matterがなく、同期すると重複記事になる可能性があるため、`.gitignore` で同期対象から外しています。
 
 AIM記事を文章チェックします。
 
@@ -35,20 +35,27 @@ npm run textlint
 npm run textlint:all
 ```
 
+## 公開状況
+
+GitHubリポジトリは https://github.com/hwatari-snow/zenn （public）です。AIM記事は `published: true` でpush済みです。
+
+Zennのデビュー画面でGitHub連携を有効にし、このリポジトリと `main` ブランチを選択すると公開されます。
+
+- 掲載した図版には、デモのDB名、接続名 `coco_desktop`、ACCOUNTADMIN表示、承認省略設定が映っています。
+- 未確認項目は、デモの使用バージョン、8テーブルと6テーブルの差分理由、最終DDLの保存先設定です。
+
 ## 公開前の確認
 
-現在はローカルでの執筆のみです。GitHubリポジトリやZennとの連携は設定していません。
-
 - 新規記事は `published: false` のまま内容を確認します。
-- AIM記事は公式情報による概要説明と、提供された12枚のデモ画像に基づく実践記事です。今回の執筆作業では移行を実行していません。
+- AIM記事は公式情報による概要説明と、12枚のデモ画像に基づく実践記事です。執筆作業では移行を実行していません。
 - 画面で確認できる結果は、6テーブルの行数一致という報告と、SnowsightでのCATEGORYテーブルの表示です。全行・業務ロジックの検証完了は主張していません。
 - 公開前に使用バージョン、変換対象8テーブルと結果6テーブルの差分、最終DDLのSnowflake storage設定を確認してください。図版の公開可否も確認対象です。
 - 最終DDLの確認は未完了です。デモの`AIM_MIGRATION_DB`は別アカウントにあり、接続中のアカウントには存在しません。記事では、保存先の設定値を確認していないと明記しています。
-- 既存のCLI記事にはZenn用Front Matterがありません。公開済み記事と同一の記事であれば、既存slugとの対応も確認してからGitHub連携を設定します。名前を変えて同期すると別記事になる可能性があります。
+- 既存のCLI記事にはZenn用Front Matterがありません。同期する場合は、公開済み記事のslugとの対応を確認してから`.gitignore`から外してください。名前を変えて同期すると別記事になる可能性があります。
 - 認証情報、接続設定、実データ、顧客情報をコミットしないでください。`.gitignore` だけでは機密情報の混入を防げません。
 - 公開先のPublicationは未設定です。必要な場合のみ確認後に設定します。
 
-公開する場合は、GitHubリポジトリを作成し、Zennアカウントからそのリポジトリとブランチを連携します。レビュー後に `published: true` へ変更し、明示的にcommitとpushを実行します。
+公開後に修正する場合は、原稿を編集してcommitとpushを実行するとZenn側に反映されます。
 
 ## AIM記事の画像
 
