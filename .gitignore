@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+*.pem
+*.key
+connections.toml
+config.toml
+.scai/
+.snowflake/
+/articles/Snowflake AIM/
+/articles/cortex-code-cli-install-guide.md

@@ -1,0 +1,17 @@
+{
+  "name": "miyamankyushu-zenn",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Zenn articles for miyamankyushu",
+  "scripts": {
+    "preview": "zenn preview --host 127.0.0.1",
+    "textlint": "textlint articles/snowflake-aim-redshift-iceberg.md",
+    "textlint:all": "textlint 'articles/*.md'"
+  },
+  "devDependencies": {
+    "@textlint-ja/textlint-rule-preset-ai-writing": "1.7.0",
+    "textlint": "15.8.0",
+    "textlint-rule-preset-ja-technical-writing": "12.0.2",
+    "zenn-cli": "0.5.4"
+  }
+}
