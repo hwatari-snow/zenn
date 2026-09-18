@@ -21,6 +21,12 @@ publication_name: "snowflakejp"
 
 この記事は、移行を担当するエンジニア向けです。AIMの概要に続いて、接続設定、コード変換、データ移行の設定、移行後の確認を紹介します。
 
+:::message
+本記事の内容は、Snowflake World Tour Tokyoのセッション「**What's New: AI時代のアナリティクス最新情報**」でもお話ししています。オンデマンド配信でご覧いただけますので、動画で追いたい方は下記のリンクからご登録をいただきこちらもあわせてご覧ください！
+:::
+
+https://www.snowflake.com/ja/world-tour/tokyo/
+
 :::message alert
 製品仕様の説明は2026年9月18日時点の公開ドキュメントに基づきます。
 :::
