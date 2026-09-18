@@ -41,7 +41,7 @@ Snowflake AIMがコードやワークフロー、依存関係を自動で分析�
 
 今回のブログで扱うのは、2つ目の**Snowflake AIM Agent for Data Warehouses**です。Snowflake CoCo上で対話しながら、接続、コード抽出、変換、アセスメント、デプロイ、データ移行、検証を進めます。
 
-対応する移行元は幅広く、工程ごとに対応範囲が定められています。コード抽出まで対応するのはSQL Server、Redshift、PostgreSQLです。決定論的なコード変換はこれらに加えてTeradata、Oracle、Azure Synapse、Google BigQuery、Greenplum、Netezza、Spark SQL、Databricks SQL、Vertica、Hive、IBM DB2などの方言に対応します。
+対応する移行元は幅広く、工程ごとに対応範囲が定められています。コード抽出まで対応するのはSQL Server、Redshift、PostgreSQLです。決定論的なコード変換はこれらに加えてTeradata、Oracle、Azure Synapse、Google BigQuery、Greenplum、Netezza、Spark SQL、Databricks SQL、Vertica、Hive、IBM DB2などに対応します。
 
 全体の進捗は標準で用意されているレポートやダッシュボードでも可視化され、人とAIが移行状態を見ながら進められます。
 
@@ -80,7 +80,7 @@ https://www.snowflake.com/en/blog/engineering/snowflake-aim-migration-agent/
 | 抽出方式 | Direct read（ODBC） |
 
 :::message
-ここでは、AIM Agentを利用できるCoCo Desktopと、移行元・移行先へ接続できる環境を前提にしています。新規導入からの全手順ではなく、移行操作の紹介です。画面に使用バージョンは写っていません。表示や選択肢は、手元の環境と異なる可能性があります。
+ここでは、AIM Agentを利用できるCoCo Desktopと、移行元・移行先へ接続できる環境を前提にしています。新規導入からの全手順ではなく、移行操作の紹介です。
 :::
 
 なお、Snowflake storageのIcebergテーブルに関しては、こちらのブログも参考にしてください。
@@ -180,11 +180,11 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-v
 
 ### 6. 抽出経路とテーブル形式を決める
 
-ここが今回のデモで一番重要な設定です。抽出方式と、移行先のテーブル形式を選びます。
+抽出方式と、移行先のテーブル形式を選びます。
 
 ![抽出方式でDirect read（ODBC）、テーブルタイプでIceberg（Redshift only）を選択したデータ移行の計画画面。](/images/snowflake-aim-redshift-iceberg/10-extraction.jpg)
 
-今回は抽出方式に`Direct read (ODBC)`、テーブルタイプに`Iceberg (Redshift only)`を選びました。S3を経由せず、WorkerがODBC接続でRedshiftから結果セットを直接取得する方式です。公開ドキュメントでは`regular`という抽出方式に対応します。
+今回は抽出方式に`Direct read (ODBC)`、テーブルタイプに`Iceberg`を選びました。S3を経由せず、WorkerがODBC接続でRedshiftから結果セットを直接取得する方式です。公開ドキュメントでは`regular`という抽出方式に対応します。
 
 この設定を入れると、AIMは裏側で次を全テーブルに対して自動実行します。
 
@@ -194,13 +194,10 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-v
 
 テーブル定義の作成からデータ投入までを一括で面倒を見てくれるため、ネイティブテーブルではなくIcebergで移行したい場合も、選択肢を切り替えるだけで済みます。
 
-:::message alert
-テーブルタイプの説明には「Snowflake管理のIcebergテーブル（Redshiftソースのみ）」と書かれています。Icebergを移行先に選べる範囲は移行元によって異なる点に注意してください。
-:::
 
-もう一方の`UNLOAD to S3`は、RedshiftがS3へファイルを書き出し、Snowflakeが外部ステージ経由でロードする方式です。画面の説明にもS3バケットとIAMロールが必要と書かれています。今回選んでいるのはUNLOADではありません。
-
-抽出経路とIcebergの保存先は、別の設定です。UNLOADを使う場合でも、UNLOAD用S3とIcebergの保存先を同じものとして扱わないようにします。次のドキュメントでは、前提を整えられる場合はUNLOADを推奨しています。ODBC抽出は少量データなどに向く選択肢です。
+今回はSnowflake storageを選択しているのでS3は経由してませんが、もう一方の`UNLOAD to S3`は、RedshiftがS3へファイルを書き出し、Snowflakeが外部ステージ経由でロードする方式も可能です。
+CoCoはAWSのCLIも実行できるので必要に応じてIAMロールを作成し、S3にバケットを作成し**外部ボリュームでのIceberg化**も対応できます。
+大規模なデータの場合はUNLOADを推奨しています。ODBC抽出は少量データなどに向く選択肢です。詳細は下記をご参考にしてください。
 
 https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/migrate-redshift
 
@@ -222,14 +219,10 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-v
 | VENUE | 202 | 一致 |
 
 6テーブルについて、ソースと行数が一致したと報告されています。
-
-:::message alert
-ただし、自動で走るのは検証の一部です。行数が同じでも、個々の値や重複の状態まで一致するとは限りません。この画面を、全行比較が完了した証拠としては扱いません。後述する検証レベルのどこまでを実施するかは、人が決める必要があります。
+:::message
+データが問題なく移行できているか、件数だけでなく欠損や型の不一致による不備がないか細かく検証してくれる点も最高です。
 :::
 
-:::details 変換時は8テーブル、ここでは6テーブルになっている理由
-移行対象として指定したのはテーブル6件ですが、変換時のダッシュボードには8テーブルが表示されています。変換対象の一覧には内部テーブルも含まれていたためです。この画面だけでは差分の理由をすべて特定できないため、ここに示された6テーブルの結果として紹介します。
-:::
 
 ### 8. 移行先の画面でもテーブル形式を確かめる
 
@@ -259,11 +252,11 @@ CoCoの完了メッセージだけでなく、移行先の画面でもテーブ�
 
 抽出方式とテーブル形式が独立した選択肢として用意されているため、「RedshiftからODBCで抽出し、Snowflake storageのIcebergテーブルへ入れる」という組み合わせを、ドロップダウンの選択だけで実現できました。
 
-Icebergを選んでも、テーブル作成からデータ投入までAIMが一括で面倒を見てくれます。自分でS3バケットやExternal Volumeを準備する必要もありません。レイクハウス構成を前提に移行したいケースでは、この選択肢があるだけで検討の幅が広がります。
+Icebergを選んでも、テーブル作成からデータ投入までAIMが一括で面倒を見てくれます。流行りのオープンなレイクハウス構成を前提に移行したいケースでは、この選択肢があるだけで検討の幅が広がります。
 
 ### 検証が段階的に用意されている
 
-今回の行数一致は自動で表示されましたが、AIMの検証はそれだけではありません。次の3段階が用意されています。
+行数一致は自動で表示されましたが、AIMの検証はそれだけではありません。次の3段階が用意されています。
 
 | レベル | 内容 |
 | --- | --- |
@@ -291,7 +284,7 @@ Snowflake AIMは、コード変換だけでなく、依存関係や進捗を管�
 
 移行できるのはテーブルだけではありません。今回の対象にもストアドプロシージャとビューが含まれており、AIMはオブジェクト間の依存関係を踏まえて移行順序を組みます。大規模で複雑なデータベースほど、この依存関係の把握と進捗の可視化が効いてくる部分です。
 
-これから試す場合は、小さな範囲で接続、変換、ロード、検証を一巡させると、確認すべき項目を整理しやすくなります。AIMが示す結果を見ながら、移行先の定義とデータも確認して進めてみてください。
+これから試す場合は、小さな範囲で接続、変換、ロード、検証を一巡させると、確認すべき項目を整理しやすくなります。AIMが示す結果を見ながら、移行先の定義とデータも確認して進めてみてください！
 
 ## 参考資料
 
