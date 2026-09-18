@@ -2,7 +2,7 @@
 title: "Snowflake AIMを使ってRedshiftからSnowflake-managed Icebergテーブルへの移行を試してみた"
 emoji: "❄️"
 type: "tech"
-topics: ["snowflake", "redshift", "iceberg", "aws"]
+topics: ["snowflake", "redshift", "iceberg", "aws", "datamigration"]
 published: true
 publication_name: "snowflakejp"
 ---
@@ -298,3 +298,10 @@ Snowflake AIMは、コード変換だけでなく、依存関係や進捗を管�
 - [Data Migration & Validationの概要](https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/overview)
 - [Redshiftからのデータ検証](https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/validate-redshift)
 - [Snowflake storage for Apache Iceberg tables](https://docs.snowflake.com/en/user-guide/tables-iceberg-internal-storage)
+- [Snowflake World Tour Tokyo（セッションのオンデマンド配信）](https://www.snowflake.com/ja/world-tour/tokyo/)
+
+## 関連記事
+
+Snowflake storageを使うIcebergテーブル自体については、こちらの記事で詳しく扱っています。
+
+https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing
