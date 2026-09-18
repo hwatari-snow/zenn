@@ -1,5 +1,5 @@
 ---
-title: "Snowflake AIMを使ってRedshiftからSnowflake managed Icebergテーブルへの移行を試してみた"
+title: "Snowflake AIMを使ってRedshiftからSnowflake-managed Icebergテーブルへの移行を試してみた"
 emoji: "❄️"
 type: "tech"
 topics: ["snowflake", "redshift", "iceberg", "aws"]
@@ -33,17 +33,17 @@ Snowflake AIMがコードやワークフロー、依存関係を自動で分析�
 ![Snowflake AIMの全体像。仮想化、データウェアハウス移行、Sparkワークロードのモダナイゼーション。](/images/snowflake-aim-redshift-iceberg/01-aim-overview.jpg)
 
 
-AIMは2つのアプローチをサポートしています。
+図には三つのブロックが並んでいますが、アプローチとしては大きく2つに分かれます。
 
-1つ目が、バーチャライゼーション、仮想化です。こちらはTeradata専用のサービスになっておりますが接続先を切り替えるだけで、既存のアプリケーションやワークロードをそのままSnowflake上で実行できます。Snowflakeが買収したDatometry社の技術がベースです。
+1つ目がバーチャライゼーション（仮想化）です。Teradata専用のサービスで、接続先を切り替えるだけで、既存のアプリケーションやワークロードをそのままSnowflake上で実行できます。Snowflakeが買収したDatometry社の技術がベースです。
 
-2つ目が、モダナイゼーションです。データウェアハウス、ETLのプロセス、Sparkワークロードを、Snowflakeネイティブなアーキテクチャへ自動で移行・変換します。
+2つ目がモダナイゼーションです。データウェアハウス、ETLのプロセス、Sparkワークロードを、Snowflakeネイティブなアーキテクチャへ自動で移行・変換します。
 
-今回のブログで扱うのは この２つ目の**Snowflake AIM Agent for Data Warehouses** です。Snowflake CoCo上で対話しながら、接続、コード抽出、変換、アセスメント、デプロイ、データ移行、検証を進めます。
+今回のブログで扱うのは、2つ目の**Snowflake AIM Agent for Data Warehouses**です。Snowflake CoCo上で対話しながら、接続、コード抽出、変換、アセスメント、デプロイ、データ移行、検証を進めます。
 
-対応可能なサービスは、SQL Server, Redshift, Teradata, Oracle, Azure Synapse, Google BigQuery, Greenplum, Netezza, Spark SQL, Databricks SQL, Vertica, Hive, IBM DB2など多様です。
+対応する移行元は幅広く、工程ごとに対応範囲が定められています。コード抽出まで対応するのはSQL Server、Redshift、PostgreSQLです。決定論的なコード変換はこれらに加えてTeradata、Oracle、Azure Synapse、Google BigQuery、Greenplum、Netezza、Spark SQL、Databricks SQL、Vertica、Hive、IBM DB2などの方言に対応します。
+
 全体の進捗は標準で用意されているレポートやダッシュボードでも可視化され、人とAIが移行状態を見ながら進められます。
-
 
 :::message
 対応する移行元や機能は、移行方式やバージョンによって異なります。図にある対応ソースすべてで、同じ工程を自動化できるという意味ではありません。利用時には公式ドキュメントを確認してください。
@@ -83,22 +83,18 @@ https://www.snowflake.com/en/blog/engineering/snowflake-aim-migration-agent/
 ここでは、AIM Agentを利用できるCoCo Desktopと、移行元・移行先へ接続できる環境を前提にしています。新規導入からの全手順ではなく、移行操作の紹介です。画面に使用バージョンは写っていません。表示や選択肢は、手元の環境と異なる可能性があります。
 :::
 
-なお、Snowflake StrageのIceebrgテーブルに関しては、こちらのブログを参考にしてください。
+なお、Snowflake storageのIcebergテーブルに関しては、こちらのブログも参考にしてください。
 https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing
 
 ## Snowflake AIMプラグインをCoCoに導入する
 
-AIM Agentは、CoCo CLIにはバンドルされています。今回のようにCoCo Desktopから使う場合は、`snowflake-migration`プラグインを導入しておきます（このデモ環境では`Snowflake-Labs/cortex-code-migrations`から導入したものを使用しています）。
+AIM Agentは、CoCo CLIにはバンドルされています。今回のようにCoCo Desktopから使う場合は、`snowflake-migration`プラグインを導入しておきます。
 
 SnowConvertやODBCドライバなどの依存ツールは、初回実行時に自動でインストールされます。前提条件とトラブルシュートは次のドキュメントを参照してください。
 
 https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/troubleshooting
 
 ## CoCo Desktopから移行を試してみる
-
-### Snowflake AIMのインストール
-前提として、こちらの手順に従って、Snowflake AIMのプラグインをこの手順でCoCoにインストールしてください。
-
 
 ### 1. 移行したい内容を伝える
 
@@ -113,7 +109,7 @@ RedshiftからSnowflakeへ移行をお願いいたします。なお、Snowflake
 「Redshiftから移行したい」だけでなく、テーブル形式と保存先も最初に伝えています。通常のSnowflakeテーブルにするのか、Icebergにするのかで、後続のDDLやデータ移行設定が変わるためです。
 
 :::message alert
-承認を省略する設定はAIM利用の前提ではありません。データの書き込みやリソース作成は、対象と影響を確認してから進めてください。
+データの書き込みやリソース作成は、対象と影響を確認してから進めてください。
 :::
 
 ### 2. 接続設定は、AIMの質問に答えるだけで済む
@@ -122,13 +118,11 @@ AIMに依頼すると、環境を分析したうえで必要な作業を順に�
 
 ![Redshiftの認証方式、ホスト、データベースを入力する画面。](/images/snowflake-aim-redshift-iceberg/04-source-connection.jpg)
 
-ここで注目したいのは、設定ファイルの書式を調べる必要がない点です。何が必要かをAIMがポップアップで聞いてくるので、こちらは答えていくだけで完了します。画面にはIAM認証とStandard Authが表示され、Standard Authを選んでいます。ホスト欄の`your-cluster.region.redshift.amazonaws.com`は入力例です。実際には、自分のRedshift環境の接続先を指定します。
+ここで注目したいのは、設定ファイルの書式を調べる必要がない点です。必要な項目はAIMがポップアップで順に聞いてくるので、答えていくだけで設定が終わります。画面にはIAM認証とStandard Authが表示され、Standard Authを選んでいます。ホスト欄の`your-cluster.region.redshift.amazonaws.com`は入力例です。実際には、自分のRedshift環境の接続先を指定します。
 
-対話で完結するとはいえ、人が用意すべき前提はあります。移行対象を読み取る権限、Redshiftへのネットワーク到達性、そしてWorker実行環境のRedshift用ODBCドライバーです。公開ドキュメントでは、後述するODBC抽出とUNLOAD抽出の両方でODBCドライバーが前提条件になっています。
+対話で完結するとはいえ、人が用意すべき前提はあります。（移行対象を読み取る権限、Redshiftへのネットワーク到達性など）
 
-:::message alert
-パスワードやトークンなどの認証情報は、記事やGitリポジトリへ記載しません。
-:::
+
 
 ### 3. 移行対象を対話で絞り込み、変換結果はファイルとして残る
 
@@ -138,15 +132,16 @@ AIMに依頼すると、環境を分析したうえで必要な作業を順に�
 
 ![コード変換の完了メッセージ。変換済みコードとSnowConvertレポートの保存先が表示される。](/images/snowflake-aim-redshift-iceberg/05-conversion.jpg)
 
-ここでのポイントは、変換結果が会話の中で消えずにファイルとして残ることです。変換済みコードは`snowflake/`、レポートは`reports/SnowConvert/`に出力されています。生成されたSQLをそのまま開いてレビューでき、レポートでEWI（変換時のエラー・警告・課題）の内訳も確認できます。このデモではEWIは0件でした。
+変換結果が会話の中で消えずにファイルとして残るのも良いところです。変換済みコードは`snowflake/`、レポートは`reports/SnowConvert/`に出力されています。生成されたSQLをそのまま開いてレビューでき、レポートでEWI（変換時のエラー・警告・課題）の内訳も確認できます。このデモではEWIは0件でした。
 
-:::message
-ここで確認しているのは、変換段階の結果です。EWIが0件でも、データ移行やプロシージャの動作確認が終わったわけではありません。画面に表示された処理時間も、このデモの報告値であり、移行全体の所要時間ではありません。
-:::
 
 ### 4. 進捗の可視化が最初から用意されている
 
-AIMは、ブラウザで開けるダッシュボードを自動生成します。個人的にはここが一番うれしいポイントでした。従来の移行プロジェクトでは、「今どこまで進んだのか」「どのオブジェクトが完了し、どこに課題があるのか」を集計する作業自体に手間がかかります。AIMはそれを成果物として自動で出してくれるので、進捗管理の負荷が下がります。
+AIMは、ブラウザで開けるアセスメントのダッシュボードを自動生成します。従来の移行プロジェクトでは、「今どこまで進んだのか」「どのオブジェクトが完了し、どこに課題があるのか」を集計する作業自体に手間がかかります。
+
+:::message
+**標準でアセスメントのダッシュボードが用意されていて、そのまま移行のタスク管理ができるのは最高です。** 進捗表を自作しなくても、オブジェクト単位の状況がひと目で分かります。
+:::
 
 ![コード変換が13件中13件完了し、デプロイ以降は未完了となっているダッシュボード。](/images/snowflake-aim-redshift-iceberg/06-dashboard.jpg)
 
@@ -163,7 +158,7 @@ AIMは、ブラウザで開けるダッシュボードを自動生成します�
 - `dev.public.v_event_sales`（ビュー）
 - `dev.public.sp_refresh_sales_summary`（プロシージャ）
 
-テーブルを移すだけでなく、それを参照するSQLも追跡対象になっている点がポイントです。AIMはこの依存関係をもとに移行順序（Wave）を組むため、大規模で複雑なDBでも「ビューより先に参照先テーブル」という順序を人が手で並べ替える必要がありません。テーブル定義を直したときに影響範囲を確認する用途にも使えます。
+テーブルを移すだけでなく、それを参照するSQLも追跡対象になっています。AIMはこの依存関係をもとに移行順序（Wave）を組むため、大規模で複雑なDBでも「ビューより先に参照先テーブル」という順序を人が手で並べ替える必要がありません。テーブル定義を直したときに影響範囲を確認する用途にも使えます。
 
 ### 5. 実行環境はローカルとSPCSから選べる
 
@@ -179,7 +174,7 @@ AIMは、ブラウザで開けるダッシュボードを自動生成します�
 
 Orchestratorはデータ移行・検証ワークフローを管理する役割です。Workerは移行元への接続やデータ抽出などを担当します。今回はデモ用でデータ量が小さいため、どちらもローカルを選びました。
 
-ここでのポイントは、データ量が増えても実行環境を差し替えられることです。画面にはSnowpark Container Services（SPCS）も表示されており、大規模データではSnowflakeのマネージドなコンテナ上でOrchestratorとWorkerを動かせます。ローカルで小さく試し、本番規模ではSPCSへ寄せるという進め方が取れます。規模やネットワーク構成に応じて配置先を決めてください。詳しくは次のドキュメントを参照してください。
+注目したいのは、データ量が増えても実行環境を差し替えられることです。画面にはSnowpark Container Services（SPCS）も表示されており、大規模データではSnowflakeのマネージドなコンテナ上でOrchestratorとWorkerを動かせます。ローカルで小さく試し、本番規模ではSPCSへ寄せるという進め方が取れます。規模やネットワーク構成に応じて配置先を決めてください。詳しくは次のドキュメントを参照してください。
 
 https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/overview
 
@@ -238,7 +233,7 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-v
 
 ### 8. 移行先の画面でもテーブル形式を確かめる
 
-最後に、AIMの完了メッセージを鵜呑みにせず、Snowsightのデータベースエクスプローラーから移行先を開いて確認します。
+最後に、念のためSnowsightのデータベースエクスプローラーから移行先を開いて確認します。
 
 ![AIM_MIGRATION_DB.PUBLIC.CATEGORYがIcebergテーブルとして表示され、11行のデータを確認できる。](/images/snowflake-aim-redshift-iceberg/12-snowsight.jpg)
 
