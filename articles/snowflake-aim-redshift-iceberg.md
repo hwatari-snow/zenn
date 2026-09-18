@@ -89,8 +89,6 @@ https://www.snowflake.com/en/blog/engineering/snowflake-aim-migration-agent/
 ここでは、AIM Agentを利用できるCoCo Desktopと、移行元・移行先へ接続できる環境を前提にしています。新規導入からの全手順ではなく、移行操作の紹介です。
 :::
 
-なお、Snowflake storageのIcebergテーブルに関しては、こちらのブログも参考にしてください。
-https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing
 
 ## Snowflake AIMプラグインをCoCoに導入する
 
