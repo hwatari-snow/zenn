@@ -201,9 +201,11 @@ https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-v
 テーブル定義の作成からデータ投入までを一括で面倒を見てくれるため、ネイティブテーブルではなくIcebergで移行したい場合も、選択肢を切り替えるだけで済みます。
 
 
-今回はSnowflake storageを選択しているのでS3は経由してませんが、もう一方の`UNLOAD to S3`では、RedshiftがS3へファイルを書き出し、Snowflakeが外部ステージ経由でIceberg化することも可能です。
-CoCoはAWSのCLIも実行できるので必要に応じてIAMロールを作成し、S3にバケットを作成し**外部ボリュームでのIceberg化**も対応できます。
-大規模なデータの場合はUNLOADを推奨しています。ODBC抽出は少量データなどに向く選択肢です。詳細は下記をご参考にしてください。
+今回はODBC抽出を選んでいるため、S3は経由していません。もう一方の`UNLOAD to S3`は、RedshiftがS3へファイルを書き出し、Snowflakeが外部ステージ経由でロードする抽出方式です。S3バケットとIAMロールを用意する必要がありますが、公開ドキュメントでは前提を整えられる場合はUNLOADが推奨されています。ODBC抽出は少量データなどに向く選択肢です。
+
+ここで押さえておきたいのは、**抽出経路（ODBC / UNLOAD）とIcebergの保存先（Snowflake storage / 外部ボリューム）は別の設定**だという点です。UNLOAD用のS3バケットと、Icebergのデータファイルを置く場所は同じものではありません。
+
+保存先に外部ボリュームを使いたい場合も、CoCoはAWS CLIを実行できるので、IAMロールとS3バケットの作成からExternal Volumeの定義まで、同じセッションの中で進められます。詳細は下記をご参考にしてください。
 
 https://docs.snowflake.com/en/migrations/aim-for-datawarehouses/data-migration-validation/migrate-redshift
 
@@ -302,6 +304,6 @@ Snowflake AIMは、コード変換だけでなく、依存関係や進捗を管�
 
 ## 関連記事
 
-Snowflake storageを使うIcebergテーブル自体については、こちらの記事で詳しく扱っています。
+Snowflake storageを使うIcebergテーブル自体については、こちらの庄司さんの記事で詳しく扱っています！併せて最高の機能ですので読んでいただけると幸いです。
 
 https://zenn.dev/snowflakejp/articles/snowflake_iceberg_open_sharing
